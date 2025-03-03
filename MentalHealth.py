@@ -30,6 +30,9 @@ def set_theme(light_mode):
                     background-color: #f0f0f0;
                     color: #000;
                 }
+                .stMarkdown {
+                    color: #000;
+                }
             </style>
         """
     else:
@@ -47,6 +50,9 @@ def set_theme(light_mode):
                 .stButton>button {
                     background-color: #555;
                     color: #fff;
+                }
+                .stMarkdown {
+                    color: #ffffff;
                 }
             </style>
         """
