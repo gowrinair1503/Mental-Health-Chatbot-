@@ -26,30 +26,54 @@ actions = {
     "OCD": ["Try guided meditation.", "Hold a grounding object.", "Breathe deeply and remind yourself: 'I am in control.'"]
 }
 
+# Initialize session state for storing conversation history if not already present
+if 'conversation_history' not in st.session_state:
+    st.session_state['conversation_history'] = []
+
+# Function to generate a chatbot response
 def generate_response(user_input):
-    # Here, you would generate your response (based on your model)
+    # Simple response generation based on input, can be replaced with actual model-based generation
     return "I'm here to listen and support you."
 
+# Function to determine sentiment (placeholder for actual sentiment analysis logic)
 def get_sentiment(text):
     # Here, you would process the text to get sentiment (positive, negative, etc.)
     if "sad" in text.lower():
         return "Negative"
     return "Positive"
 
+# Function to provide suggestions based on the emotion
 def get_suggestion(emotion):
     if emotion in actions:
         suggestion = random.choice(actions[emotion])
         return suggestion, emotion
     return "Stay strong, you're not alone!", "Neutral"
 
+# Display previous conversation if it exists
+for message in st.session_state['conversation_history']:
+    st.write(message)
+
 # Chat Input
 user_input = st.text_input("How are you feeling today?", "")
 if user_input:
+    # Generate chatbot response
     response = generate_response(user_input)
-    st.write(f"🤖 Chatbot: {response}")
     
+    # Add user input and response to the conversation history
+    st.session_state['conversation_history'].append(f"You: {user_input}")
+    st.session_state['conversation_history'].append(f"🤖 Chatbot: {response}")
+    
+    # Sentiment-based actions
     sentiment = get_sentiment(user_input)
     if sentiment == "Negative":
         emotion = random.choice(list(actions.keys()))
         suggestion, _ = get_suggestion(emotion)
-        st.write(f"💡 Suggestion: {suggestion}")
+        st.session_state['conversation_history'].append(f"💡 Suggestion: {suggestion}")
+    
+    # Display updated conversation history
+    for message in st.session_state['conversation_history']:
+        st.write(message)
+    
+    # Option for further interaction
+    st.text_input("You can continue the conversation by typing here.", key="next_message")
+
