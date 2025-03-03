@@ -12,8 +12,46 @@ st.markdown("A calm and supportive chatbot to help with your mental well-being."
 st.sidebar.title("Settings")
 light_mode = st.sidebar.checkbox("Light Mode", value=True)
 
-theme = "#f8f1f1" if light_mode else "#2c2c2c"
-st.markdown(f"<style>body {{background-color: {theme};}}</style>", unsafe_allow_html=True)
+# Apply the theme dynamically
+if light_mode:
+    # Light mode: Background light, text dark
+    theme = """
+        <style>
+            body {
+                background-color: #f8f1f1;
+                color: #000000;
+            }
+            .stTextInput input {
+                background-color: #ffffff;
+                color: #000000;
+            }
+            .stTextArea textarea {
+                background-color: #ffffff;
+                color: #000000;
+            }
+        </style>
+    """
+else:
+    # Dark mode: Background dark, text light
+    theme = """
+        <style>
+            body {
+                background-color: #2c2c2c;
+                color: #ffffff;
+            }
+            .stTextInput input {
+                background-color: #444444;
+                color: #ffffff;
+            }
+            .stTextArea textarea {
+                background-color: #444444;
+                color: #ffffff;
+            }
+        </style>
+    """
+
+# Add the theme to the app
+st.markdown(theme, unsafe_allow_html=True)
 
 # Action and suggestion functions
 actions = {
@@ -77,6 +115,6 @@ if user_input:
     # Display updated conversation history (auto-scroll down)
     for message in st.session_state['conversation_history']:
         st.write(message)
-    
-    # Clear the input field after message is processed
+
+    # Reset the input field to be empty
     input_container.text_input("How are you feeling today?", "", key="next_message")
