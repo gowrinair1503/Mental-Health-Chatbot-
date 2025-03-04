@@ -12,56 +12,25 @@ st.markdown("A calm and supportive chatbot to help with your mental well-being."
 st.sidebar.title("Settings")
 light_mode = st.sidebar.checkbox("Light Mode", value=True)
 
-# Function to set theme based on light/dark mode
-def set_theme(light_mode):
-    if light_mode:
-        # Light mode
-        theme = """
-            <style>
-                body {
-                    background-color: #f8f1f1;
-                    color: #000000;
-                }
-                .stTextInput input, .stTextArea textarea {
-                    background-color: #ffffff;
-                    color: #000000;
-                }
-                .stButton>button {
-                    background-color: #f0f0f0;
-                    color: #000;
-                }
-                .stMarkdown {
-                    color: #000;
-                }
-            </style>
-        """
-    else:
-        # Dark mode
-        theme = """
-            <style>
-                body {
-                    background-color: #2c2c2c;
-                    color: #ffffff;
-                }
-                .stTextInput input, .stTextArea textarea {
-                    background-color: #444444;
-                    color: #ffffff;
-                }
-                .stButton>button {
-                    background-color: #555;
-                    color: #fff;
-                }
-                .stMarkdown {
-                    color: #ffffff;
-                }
-            </style>
-        """
-    st.markdown(theme, unsafe_allow_html=True)
+# Define CSS for dark/light mode
+dark_theme_css = """
+    <style>
+        body { background-color: #2c2c2c; color: white; }
+        .stTextInput>div>div>input { background-color: #444; color: white; }
+    </style>
+"""
 
-# Apply the selected theme
-set_theme(light_mode)
+light_theme_css = """
+    <style>
+        body { background-color: #f8f1f1; color: black; }
+        .stTextInput>div>div>input { background-color: white; color: black; }
+    </style>
+"""
 
-# Actions and suggestions for different emotions
+# Apply the chosen theme
+st.markdown(light_theme_css if light_mode else dark_theme_css, unsafe_allow_html=True)
+
+# Action and suggestion functions
 actions = {
     "Depression": ["Try going for a short walk.", "Listen to soft music.", "Break your day into tiny tasks."],
     "Anxiety": ["Try deep breathing.", "Imagine a peaceful place.", "Hold something soft."],
@@ -72,56 +41,54 @@ actions = {
     "OCD": ["Try guided meditation.", "Hold a grounding object.", "Breathe deeply and remind yourself: 'I am in control.'"]
 }
 
-# Initialize session state for conversation if it doesn't exist
+# Initialize session state for storing conversation history if not already present
 if 'conversation_history' not in st.session_state:
     st.session_state['conversation_history'] = []
 
 # Function to generate chatbot response
 def generate_response(user_input):
+    # Simple response generation based on input, can be replaced with actual model-based generation
     return "I'm here to listen and support you."
 
-# Function to determine sentiment (for simplicity, placeholder logic)
+# Function to determine sentiment (placeholder for actual sentiment analysis logic)
 def get_sentiment(text):
-    # Add more sophisticated sentiment analysis if required
-    if "sad" in text.lower():
+    # Here, you would process the text to get sentiment (positive, negative, etc.)
+    if "sad" in text.lower() or "lonely" in text.lower():
         return "Negative"
     return "Positive"
 
-# Function to get a suggestion based on sentiment
+# Function to provide suggestions based on the emotion
 def get_suggestion(emotion):
     if emotion in actions:
         suggestion = random.choice(actions[emotion])
         return suggestion, emotion
     return "Stay strong, you're not alone!", "Neutral"
 
-# Function to handle user input and chatbot response
-def handle_conversation(user_input):
-    sentiment = get_sentiment(user_input)
+# Display previous conversation
+conversation_container = st.container()
+
+# Input field
+user_input = st.text_input("How are you feeling today?", "")
+
+if user_input:
+    # Generate chatbot response
     response = generate_response(user_input)
-    st.session_state['conversation_history'].append(f"You: {user_input}")
-    st.session_state['conversation_history'].append(f"🤖 Chatbot: {response}")
     
-    # Sentiment-based suggestion (if negative sentiment)
+    # Add user input and response to the conversation history
+    st.session_state['conversation_history'].append(f"**You:** {user_input}")
+    st.session_state['conversation_history'].append(f"🤖 **Chatbot:** {response}")
+    
+    # Sentiment-based actions
+    sentiment = get_sentiment(user_input)
     if sentiment == "Negative":
         emotion = random.choice(list(actions.keys()))
         suggestion, _ = get_suggestion(emotion)
-        st.session_state['conversation_history'].append(f"💡 Suggestion: {suggestion}")
+        st.session_state['conversation_history'].append(f"💡 **Suggestion:** {suggestion}")
     
-    # Update conversation history in the UI
-    for message in st.session_state['conversation_history']:
-        st.write(message)
+    # Clear the input field (workaround)
+    st.experimental_rerun()
 
 # Display the conversation history
-with st.container():
+with conversation_container:
     for message in st.session_state['conversation_history']:
         st.write(message)
-
-# Input field at the bottom for user input
-input_container = st.empty()
-user_input = input_container.text_input("How are you feeling today?", "")
-
-# Handle conversation when user inputs text
-if user_input:
-    handle_conversation(user_input)
-    input_container.text_input("How are you feeling today?", "", key="next_message")
-
