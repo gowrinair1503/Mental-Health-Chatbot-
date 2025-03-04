@@ -41,7 +41,7 @@ actions = {
     "OCD": ["Try guided meditation.", "Hold a grounding object.", "Breathe deeply and remind yourself: 'I am in control.'"]
 }
 
-# Initialize session state for storing conversation history if not already present
+# Initialize session state for storing conversation history
 if 'conversation_history' not in st.session_state:
     st.session_state['conversation_history'] = []
 
@@ -88,5 +88,4 @@ if user_input:
             suggestion, _ = get_suggestion(emotion)
             st.session_state['conversation_history'].append(f"💡 **Suggestion:** {suggestion}")
         
-        # Refresh the page without causing duplicates
-        st.experimental_rerun()
+        # **No need to manually rerun Streamlit** – It will update automatically!
