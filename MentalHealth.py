@@ -47,48 +47,46 @@ if 'conversation_history' not in st.session_state:
 
 # Function to generate chatbot response
 def generate_response(user_input):
-    # Simple response generation based on input, can be replaced with actual model-based generation
     return "I'm here to listen and support you."
 
-# Function to determine sentiment (placeholder for actual sentiment analysis logic)
+# Function to determine sentiment
 def get_sentiment(text):
-    # Here, you would process the text to get sentiment (positive, negative, etc.)
-    if "sad" in text.lower() or "lonely" in text.lower():
-        return "Negative"
+    negative_words = ["sad", "depressed", "anxious", "worthless", "hopeless", "lonely", "tired"]
+    for word in negative_words:
+        if word in text.lower():
+            return "Negative"
     return "Positive"
 
 # Function to provide suggestions based on the emotion
 def get_suggestion(emotion):
     if emotion in actions:
-        suggestion = random.choice(actions[emotion])
-        return suggestion, emotion
+        return random.choice(actions[emotion]), emotion
     return "Stay strong, you're not alone!", "Neutral"
 
-# Display previous conversation
-conversation_container = st.container()
+# Display conversation history
+for message in st.session_state['conversation_history']:
+    st.write(message)
 
 # Input field
 user_input = st.text_input("How are you feeling today?", "")
 
 if user_input:
-    # Generate chatbot response
-    response = generate_response(user_input)
-    
-    # Add user input and response to the conversation history
-    st.session_state['conversation_history'].append(f"**You:** {user_input}")
-    st.session_state['conversation_history'].append(f"🤖 **Chatbot:** {response}")
-    
-    # Sentiment-based actions
-    sentiment = get_sentiment(user_input)
-    if sentiment == "Negative":
-        emotion = random.choice(list(actions.keys()))
-        suggestion, _ = get_suggestion(emotion)
-        st.session_state['conversation_history'].append(f"💡 **Suggestion:** {suggestion}")
-    
-    # Clear the input field (workaround)
-    st.experimental_rerun()
-
-# Display the conversation history
-with conversation_container:
-    for message in st.session_state['conversation_history']:
-        st.write(message)
+    # Avoid duplicate processing
+    if not st.session_state['conversation_history'] or st.session_state['conversation_history'][-1] != f"**You:** {user_input}":
+        
+        # Generate chatbot response
+        response = generate_response(user_input)
+        
+        # Add user input and response to history
+        st.session_state['conversation_history'].append(f"**You:** {user_input}")
+        st.session_state['conversation_history'].append(f"🤖 **Chatbot:** {response}")
+        
+        # Sentiment-based suggestion
+        sentiment = get_sentiment(user_input)
+        if sentiment == "Negative":
+            emotion = random.choice(list(actions.keys()))
+            suggestion, _ = get_suggestion(emotion)
+            st.session_state['conversation_history'].append(f"💡 **Suggestion:** {suggestion}")
+        
+        # Refresh the page without causing duplicates
+        st.experimental_rerun()
